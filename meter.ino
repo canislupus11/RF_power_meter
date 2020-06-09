@@ -60,37 +60,30 @@ void setup() {
 
 
 
-void calibration(){
-  detachInterrupt(mode_interrupt);
-  attachInterrupt(digitalPinToInterrupt(mode_button), calib_interrupt, RISING);
-}
-
-void calib_interrupt(){
-  detachInterrupt(digitalPinToInterrupt(mode_button));
-  
-  if (calib_mode == 0) {
-    calib_mode = 1;
-    encoder.write(pwr_set*4);
-    
-  }
-  else if (calib_mode == 1){
-    calib_mode = 0;
-    encoder.write(freq_sel*4);
-  }
-  attachInterrupt(digitalPinToInterrupt(mode_button), mode_interrupt, RISING);
-}
-
 void mode_interrupt(){
   detachInterrupt(digitalPinToInterrupt(mode_button));
-  
-  if (mode == 0) {
-    mode = 1;
-    encoder.write(att*4);
-    
+  if (calibration_mode == 0){
+    if (mode == 0) {
+     mode = 1;
+     encoder.write(pwr_set*4);
+     
+   }
+    else if (mode == 1){
+      mode = 0;
+      encoder.write(freq_sel*4);
+   }
   }
-  else if (mode == 1){
-    mode = 0;
-    encoder.write(freq_sel*4);
+
+  else {
+     if (mode == 0) {
+     mode = 1;
+     encoder.write(att*4);
+     
+   }
+    else if (mode == 1){
+      mode = 0;
+      encoder.write(freq_sel*4);
+   }
   }
   attachInterrupt(digitalPinToInterrupt(mode_button), mode_interrupt, RISING);
 }
@@ -179,7 +172,7 @@ void loop() {
    }
 
   }
-  else {
+  if (calibration_mode == 1) {
     
   }
      if ((millis()%400) == 0){
