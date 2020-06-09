@@ -173,7 +173,24 @@ void loop() {
 
   }
   if (calibration_mode == 1) {
-    
+    pwr = measure();
+    if (mode == 0){
+     freq_sel = (encoder.read()/4);
+     if (freq_sel > 9){
+       encoder.write(0);
+       freq_sel = 0;
+     }
+     else if (freq_sel < 0){
+       freq_sel = 10;
+       encoder.write(10);
+     }
+   }
+   else if ( mode == 1){
+     att = (encoder.read()/4);
+     if (att < 0){
+       att = 0;
+     }
+   }
   }
      if ((millis()%400) == 0){
      update_disp2();
