@@ -4,13 +4,20 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h> 
 #include <Encoder.h>
+#include <EEPROM.h>
 LiquidCrystal_I2C lcd(0x27, 6,12);
 Encoder encoder(A2, 3);
 int mode_button=2;
 float pwr=0;
+float pwr_set=0;
+float xa=0; // for calculation of coefficient of linear function from two calibration points
+float ya=0; // for calculation of coefficient of linear function from two calibration points
+float xb=0; // for calculation of coefficient of linear function from two calibration points
+float yb=0; // for calculation of coefficient of linear function from two calibration points
 int pwr_adc[4] = {0,0,0,0};
 int att=0;
 int mode=0; // 0 for set frequency and 1 for set attenuator
+int calib_mode=0; // 0 for select band and 1 for set power level
 int freq_sel=0;
 char line0[17]; 
 char line1[17];
@@ -45,11 +52,33 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(mode_button), mode_interrupt, RISING);
   encoder.write(freq_sel);
   lcd.clear();
+  if (mode_button == 0) {
+    
+  }
 }
 
-void mode_interrupt()
-{
+void calibration(){
   detachInterrupt(mode_interrupt);
+  attachInterrupt(digitalPinToInterrupt(mode_button), calib_interrupt, RISING);
+}
+
+void calib_interrupt(){
+  detachInterrupt(digitalPinToInterrupt(mode_button));
+  
+  if (calib_mode == 0) {
+    calib_mode = 1;
+    encoder.write(pwr_set*4);
+    
+  }
+  else if (calib_mode == 1){
+    calib_mode = 0;
+    encoder.write(freq_sel*4);
+  }
+  attachInterrupt(digitalPinToInterrupt(mode_button), mode_interrupt, RISING);
+}
+
+void mode_interrupt(){
+  detachInterrupt(digitalPinToInterrupt(mode_button));
   
   if (mode == 0) {
     mode = 1;
