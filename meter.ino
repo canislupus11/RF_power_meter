@@ -14,6 +14,7 @@ float xa=0; // for calculation of coefficient of linear function from two calibr
 float ya=0; // for calculation of coefficient of linear function from two calibration points
 float xb=0; // for calculation of coefficient of linear function from two calibration points
 float yb=0; // for calculation of coefficient of linear function from two calibration points
+int calibration_mode=0;
 int pwr_adc[4] = {0,0,0,0};
 int att=0;
 int mode=0; // 0 for set frequency and 1 for set attenuator
@@ -53,9 +54,11 @@ void setup() {
   encoder.write(freq_sel);
   lcd.clear();
   if (mode_button == 0) {
-    
+    calibration_mode=1;
   }
 }
+
+
 
 void calibration(){
   detachInterrupt(mode_interrupt);
@@ -153,29 +156,36 @@ int measure(){
   return pwr1 + att;
 }
 
+
 void loop() {
-  pwr = measure();
-  if (mode == 0){
-    freq_sel = (encoder.read()/4);
-    if (freq_sel > 9){
-      encoder.write(0);
-      freq_sel = 0;
-    }
-    else if (freq_sel < 0){
-      freq_sel = 10;
-      encoder.write(10);
-    }
+  if (calibration_mode == 0){
+    pwr = measure();
+    if (mode == 0){
+     freq_sel = (encoder.read()/4);
+     if (freq_sel > 9){
+       encoder.write(0);
+       freq_sel = 0;
+     }
+     else if (freq_sel < 0){
+       freq_sel = 10;
+       encoder.write(10);
+     }
+   }
+   else if ( mode == 1){
+     att = (encoder.read()/4);
+     if (att < 0){
+       att = 0;
+     }
+   }
+
   }
-  else if ( mode == 1){
-    att = (encoder.read()/4);
-    if (att < 0){
-      att = 0;
-    }
+  else {
+    
   }
-  if ((millis()%400) == 0){
-    update_disp2();
-  }
-  if ((millis()%100) == 0){
-    update_disp1();
-  }
+     if ((millis()%400) == 0){
+     update_disp2();
+   }
+   if ((millis()%100) == 0){
+     update_disp1();
+   }
 }
